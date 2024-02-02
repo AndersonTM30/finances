@@ -1,0 +1,76 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Users {
+  id        Int        @id @default(autoincrement())
+  username  String     @db.VarChar(50)
+  password  String     @db.VarChar(60)
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  Incomes   Incomes[]
+  Expenses  Expenses[]
+}
+
+model Incomes {
+  id          Int                @id @default(autoincrement())
+  description String
+  categoryId  Int
+  userId      Int
+  currencyId  Int
+  date        DateTime
+  value       Float
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime           @updatedAt
+  user        Users               @relation(fields: [userId], references: [id])
+  category    Categories_Incomes @relation(fields: [categoryId], references: [id])
+  currency    Currencies         @relation(fields: [currencyId], references: [id])
+}
+
+model Expenses {
+  id          Int                 @id @default(autoincrement())
+  description String
+  categoryId  Int
+  userId      Int
+  currencyId  Int
+  date        DateTime
+  value       Float
+  createdAt   DateTime            @default(now())
+  updatedAt   DateTime            @updatedAt
+  user        Users                @relation(fields: [userId], references: [id])
+  category    Categories_Expenses @relation(fields: [categoryId], references: [id])
+  currency    Currencies          @relation(fields: [currencyId], references: [id])
+}
+
+model Currencies {
+  id        Int        @id @default(autoincrement())
+  name      String
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  incomes   Incomes[]
+  expenses  Expenses[]
+}
+
+model Categories_Incomes {
+  id        Int       @id @default(autoincrement())
+  name      String
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  incomes   Incomes[]
+}
+
+model Categories_Expenses {
+  id        Int        @id @default(autoincrement())
+  name      String
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  expenses  Expenses[]
+}
