@@ -16,4 +16,21 @@ export class UsersService {
       data,
     });
   }
+
+  async findByUsername(username: string) {
+    return this.prisma.users.findFirst({
+      where: {
+        username: {
+          equals: username,
+        },
+      },
+      select: {
+        id: true,
+        username: true,
+      },
+      orderBy: {
+        username: 'asc',
+      },
+    });
+  }
 }
