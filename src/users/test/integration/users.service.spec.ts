@@ -26,4 +26,9 @@ describe('UsersService', () => {
     });
     expect(newUser.username).toEqual('Anderson');
   });
+
+  it('should list a user by username', async () => {
+    const user = await service.findByUsername('Anderson');
+    expect(user.username).toEqual('Anderson');
+  });
 });
