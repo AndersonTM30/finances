@@ -2,12 +2,10 @@ import { Test } from '@nestjs/testing';
 import { UsersModule } from '../../users.module';
 import { INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
-// import { UsersService } from '../../../users/users.service';
 import { CreateUsersDto } from '../../../users/dto/create.users.dto';
 
 describe('UsersController (e2e)', () => {
   let app: INestApplication;
-  // let usersService: UsersService;
 
   beforeAll(async () => {
     const module = await Test.createTestingModule({
@@ -22,10 +20,10 @@ describe('UsersController (e2e)', () => {
     await app.close();
   });
 
-  it('/POST users', async () => {
+  it('/users POST - should return the new user created', async () => {
     const createUsersDto: CreateUsersDto = {
       username: 'Anderson',
-      password: '1234',
+      password: '12341245',
     };
 
     const response = await request(app.getHttpServer())
@@ -37,17 +35,70 @@ describe('UsersController (e2e)', () => {
     expect(response.body.username).toEqual(createUsersDto.username);
   });
 
-  it('/users POST - password should not be empty', async () => {
-    const invalidUserData = {
+  it('/users POST - must return the exception message password must be longer than or equal to 8 characters', async () => {
+    const createUsersDto: CreateUsersDto = {
+      username: 'Anderson',
+      password: '12341',
+    };
+
+    const response = await request(app.getHttpServer())
+      .post('/users')
+      .send(createUsersDto);
+
+    expect(response.status).toBe(400);
+    expect(response.body.message[0].constraints.minLength).toContain(
+      'password must be longer than or equal to 8 characters',
+    );
+  });
+
+  it('/users POST - should return the message username cannot be empty', async () => {
+    const createUsersDto: CreateUsersDto = {
+      username: '',
+      password: '123',
+    };
+
+    const response = await request(app.getHttpServer())
+      .post('/users')
+      .send(createUsersDto);
+
+    expect(response.status).toBe(400);
+    expect(response.body.message[0].constraints.isNotEmpty).toContain(
+      'username should not be empty',
+    );
+  });
+
+  it('/users POST - should return the message password cannot be empty', async () => {
+    const createUsersDto: CreateUsersDto = {
       username: 'Anderson',
       password: '',
     };
 
     const response = await request(app.getHttpServer())
       .post('/users')
-      .send(invalidUserData);
+      .send(createUsersDto);
 
     expect(response.status).toBe(400);
-    expect(response.body.message).toContain('password should not be empty');
+    expect(response.body.message[0].constraints.isNotEmpty).toContain(
+      'password should not be empty',
+    );
+  });
+
+  it('/users POST - should return the error message if username or password are empty', async () => {
+    const createUsersDto: CreateUsersDto = {
+      username: '',
+      password: '',
+    };
+
+    const response = await request(app.getHttpServer())
+      .post('/users')
+      .send(createUsersDto);
+
+    expect(response.status).toBe(400);
+    expect(response.body.message[0].constraints.isNotEmpty).toContain(
+      'username should not be empty',
+    );
+    expect(response.body.message[1].constraints.isNotEmpty).toContain(
+      'password should not be empty',
+    );
   });
 });
