@@ -2,6 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { UsersService } from '../../users.service';
 import { UsersModule } from '../../users.module';
 import { PrismaService } from '../../../prisma_client/prisma.service';
+import { CreateUsersDto } from 'src/users/dto/create.users.dto';
 
 describe('UsersService', () => {
   let service: UsersService;
@@ -20,10 +21,11 @@ describe('UsersService', () => {
   });
 
   it('should return a new user', async () => {
-    const newUser = await service.createUser({
+    const newUser: CreateUsersDto = {
       username: 'Anderson',
       password: '1234',
-    });
+    };
+    await service.createUser(newUser);
     expect(newUser.username).toEqual('Anderson');
   });
 
