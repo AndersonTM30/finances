@@ -11,12 +11,15 @@ import {
 import { UsersService } from './users.service';
 import { CreateUsersDto } from './dto/create.users.dto';
 import { UserOutputDto } from './dto/user.output.dto';
+import { ApiCreatedResponse, ApiTags } from '@nestjs/swagger';
 
 @Controller('users')
+@ApiTags('Users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Post()
+  @ApiCreatedResponse()
   @HttpCode(201)
   @UsePipes(
     new ValidationPipe({
