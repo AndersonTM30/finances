@@ -21,12 +21,14 @@ describe('UsersService', () => {
   });
 
   it('should return a new user', async () => {
+    const salt = Math.floor(Math.random() * (9999 - 20 + 10)) + 1;
+    const username = 'Anderson' + salt;
     const newUser: CreateUsersDto = {
-      username: 'Anderson',
+      username: username,
       password: '1234',
     };
     await service.createUser(newUser);
-    expect(newUser.username).toEqual('Anderson');
+    expect(newUser.username).toEqual(username);
   });
 
   it('should list a user by username', async () => {
