@@ -21,8 +21,10 @@ describe('UsersController (e2e)', () => {
   });
 
   it('/users POST - should return the new user created', async () => {
-    const salt = Math.floor(Math.random() * (9999 - 20 + 10)) + 1;
-    const username = 'Anderson' + salt;
+    const salt = Math.floor(Math.random() * (99 - 20 + 10)) + 1;
+    const secondSalt = Math.floor(Math.random() * (999 - 20 + 10)) + 1;
+    const thirdSalt = Math.floor(Math.random() * (9999 - 20 + 10)) + 1;
+    const username = 'Anderson' + salt + '_' + secondSalt + '_' + thirdSalt;
     const createUsersDto: CreateUsersDto = {
       username: username,
       password: '12341245',
