@@ -35,6 +35,6 @@ describe('UsersService', () => {
 
   it('should list a user by username', async () => {
     const user = await service.findByUsername('Anderson');
-    expect(user.username).toEqual('Anderson');
+    expect(user?.username).toEqual('Anderson');
   });
 });
