@@ -16,8 +16,8 @@ import {
   ApiTags,
   ApiBody,
   ApiCreatedResponse,
+  ApiConflictResponse,
 } from '@nestjs/swagger';
-// import { SchemaObject } from '@nestjs/swagger/dist/interfaces/open-api-spec.interface';
 
 @Controller('users')
 @ApiTags('Users')
@@ -47,6 +47,17 @@ export class UsersController {
         },
         error: { type: 'string', example: 'Bad Request' },
         statusCode: { type: 'number', example: 400 },
+      },
+    },
+  })
+  @ApiConflictResponse({
+    status: 409,
+    description: 'Usuário já cadastrado!',
+    schema: {
+      type: 'object',
+      properties: {
+        message: { type: 'string', example: 'Conflict' },
+        statusCode: { type: 'number', example: 409 },
       },
     },
   })
