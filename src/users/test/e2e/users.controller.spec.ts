@@ -21,8 +21,10 @@ describe('UsersController (e2e)', () => {
   });
 
   it('/users POST - should return the new user created', async () => {
+    const salt = Math.floor(Math.random() * (9999 - 20 + 10)) + 1;
+    const username = 'Anderson' + salt;
     const createUsersDto: CreateUsersDto = {
-      username: 'Anderson',
+      username: username,
       password: '12341245',
     };
 
@@ -100,5 +102,23 @@ describe('UsersController (e2e)', () => {
     expect(response.body.message[1].constraints.isNotEmpty).toContain(
       'password should not be empty',
     );
+  });
+
+  it('/users POST - should return the message of username already registered', async () => {
+    const createUsersDto: CreateUsersDto = {
+      username: 'Anderson',
+      password: '12341245',
+    };
+
+    let response = await request(app.getHttpServer())
+      .post('/users')
+      .send(createUsersDto);
+
+    response = await request(app.getHttpServer())
+      .post('/users')
+      .send(createUsersDto);
+
+    expect(response.status).toBe(409);
+    expect(response.body.message).toContain('Conflict');
   });
 });
