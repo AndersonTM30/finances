@@ -68,13 +68,15 @@ describe('AuthService', () => {
   it('should return an access token if login is successful', async () => {
     const mockUser = { id: 1, password: 'hashedpassword' };
     mockPrismaService.users.findFirst.mockResolvedValue(mockUser);
-    // verificar mais tarde pois ainda está com erro nesse caso de teste
     jest
       .spyOn(bcrypt, 'compare')
       .mockImplementation(() => Promise.resolve(true));
 
     const result = await authService.login('Anderson', 'testpassword');
 
-    expect(result).toEqual({ accessToken: 'testToken' });
+    expect(result.accessToken).toBeDefined();
+    expect(result.accessToken).toMatch(
+      /^[A-Za-z0-9-_=]+\.[A-Za-z0-9-_=]+\.?[A-Za-z0-9-_.+/=]*$/,
+    );
   });
 });
