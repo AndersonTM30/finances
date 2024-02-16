@@ -1,18 +1,24 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { AuthController } from '../../auth.controller';
+import { Test } from '@nestjs/testing';
+import { AuthModule } from '../../../auth/auth.module';
+import { INestApplication } from '@nestjs/common';
 
 describe('AuthController', () => {
-  let controller: AuthController;
+  let app: INestApplication;
 
-  beforeEach(async () => {
-    const module: TestingModule = await Test.createTestingModule({
-      controllers: [AuthController],
+  beforeAll(async () => {
+    const module = await Test.createTestingModule({
+      imports: [AuthModule],
     }).compile();
 
-    controller = module.get<AuthController>(AuthController);
+    app = module.createNestApplication();
+    await app.init();
+  });
+
+  afterAll(async () => {
+    await app.close();
   });
 
   it('should be defined', () => {
-    expect(controller).toBeDefined();
+    expect(app).toBeDefined();
   });
 });

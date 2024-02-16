@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { PrismaService } from 'src/prisma_client/prisma.service';
+import { PrismaService } from '../prisma_client/prisma.service';
 import { AuthEntity } from './entity/auth.entity';
 // import { UsersService } from 'src/users/users.service';
 
@@ -13,7 +13,11 @@ export class AuthService {
 
   async login(username: string, password: string): Promise<AuthEntity> {
     const user = await this.prisma.users.findFirst({
-      where: { username: username },
+      where: {
+        username: {
+          equals: username,
+        },
+      },
     });
 
     if (!user) {
