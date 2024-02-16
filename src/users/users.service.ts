@@ -45,4 +45,16 @@ export class UsersService {
       },
     });
   }
+
+  async findOne(userId: number) {
+    return this.prisma.users.findUnique({
+      where: {
+        id: userId,
+      },
+      select: {
+        id: true,
+        username: true,
+      },
+    });
+  }
 }

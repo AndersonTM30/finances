@@ -6,6 +6,10 @@ import {
   UsePipes,
   ValidationPipe,
   BadRequestException,
+  Param,
+  ParseIntPipe,
+  Get,
+  UseGuards,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUsersDto } from './dto/create.users.dto';
@@ -17,7 +21,10 @@ import {
   ApiBody,
   ApiCreatedResponse,
   ApiConflictResponse,
+  ApiOkResponse,
+  ApiBearerAuth,
 } from '@nestjs/swagger';
+import { JwtAuthGuard } from '../auth/jwt.auth.guard';
 
 @Controller('users')
 @ApiTags('Users')
@@ -72,5 +79,13 @@ export class UsersController {
   )
   async signupUser(@Body() userData: CreateUsersDto): Promise<UserOutputDto> {
     return this.usersService.createUser(userData);
+  }
+
+  @Get(':id')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOkResponse()
+  async findOne(@Param('id', ParseIntPipe) id: number) {
+    return this.usersService.findOne(id);
   }
 }
