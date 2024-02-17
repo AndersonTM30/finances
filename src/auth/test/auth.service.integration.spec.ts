@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { AuthService } from '../../auth.service';
-import { AuthModule } from '../../../auth/auth.module';
-import { PrismaService } from '../../../prisma_client/prisma.service';
+import { AuthService } from '../auth.service';
+import { AuthModule } from '../auth.module';
+import { PrismaService } from '../../prisma_client/prisma.service';
 import { JwtModule, JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 
@@ -15,7 +15,7 @@ const mockJwtService = {
   sign: jest.fn(),
 };
 
-describe('AuthService', () => {
+describe('AuthService (integration)', () => {
   let authService: AuthService;
   const mockResponse = {
     cookie: jest.fn(),

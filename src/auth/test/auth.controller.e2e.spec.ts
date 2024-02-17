@@ -1,10 +1,10 @@
 import { Test } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
-import { LoginDto } from '../../../auth/dto/login.dto';
+import { LoginDto } from '../dto/login.dto';
 import * as request from 'supertest';
-import { AppModule } from '../../../app.module';
+import { AppModule } from '../../app.module';
 
-describe('AuthController', () => {
+describe('AuthController (e2e)', () => {
   let app: INestApplication;
 
   beforeAll(async () => {
