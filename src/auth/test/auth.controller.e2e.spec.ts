@@ -26,8 +26,8 @@ describe('AuthController (e2e)', () => {
 
   it('should return an access token if login is successful', async () => {
     const loginDto: LoginDto = {
-      username: 'belmont',
-      password: '12345678',
+      username: 'Anderson',
+      password: '12341245',
     };
 
     const response = await request(app.getHttpServer())
