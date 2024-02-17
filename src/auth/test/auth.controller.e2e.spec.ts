@@ -35,10 +35,7 @@ describe('AuthController (e2e)', () => {
       .send(loginDto);
 
     expect(response.status).toBe(200);
-    expect(response.body).toHaveProperty(
-      'message',
-      'Login efetuado com sucesso!',
-    );
+    expect(response.body).toHaveProperty('message', 'Login successfully!');
     expect(response.body.accessToken).toBeDefined();
   });
 });

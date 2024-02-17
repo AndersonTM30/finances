@@ -89,7 +89,7 @@ describe('AuthService (integration)', () => {
       expect.any(Object),
     );
     expect(mockResponse.send).toHaveBeenCalledWith({
-      message: 'Login efetuado com sucesso!',
+      message: 'Login successfully!',
       accessToken: expect.any(String),
       refreshToken: expect.any(String),
     });
