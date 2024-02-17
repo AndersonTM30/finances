@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Injectable,
   NotFoundException,
   UnauthorizedException,
@@ -22,6 +23,10 @@ export class AuthService {
     password: string,
     res: Response,
   ): Promise<AuthEntity> {
+    if (!username || !password) {
+      throw new BadRequestException('Username and password are required');
+    }
+
     const user = await this.prisma.users.findFirst({
       where: {
         username: {
@@ -61,7 +66,7 @@ export class AuthService {
     });
 
     res.send({
-      message: 'Login efetuado com sucesso!',
+      message: 'Login successfully!',
       accessToken,
       refreshToken,
     });
@@ -82,5 +87,10 @@ export class AuthService {
     }
 
     return user;
+  }
+
+  async logout(res: Response): Promise<void> {
+    res.clearCookie('access_token');
+    res.clearCookie('refresh_token');
   }
 }
