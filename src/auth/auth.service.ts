@@ -50,7 +50,7 @@ export class AuthService {
       httpOnly: true,
       secure: process.env.NODE_ENV !== 'development',
       sameSite: 'strict',
-      maxAge: 360000,
+      maxAge: 180000,
     });
 
     res.cookie('refresh_token', refreshToken, {
@@ -60,7 +60,11 @@ export class AuthService {
       maxAge: 604800000,
     });
 
-    res.send({ message: 'Login efetuado com sucesso!' });
+    res.send({
+      message: 'Login efetuado com sucesso!',
+      accessToken,
+      refreshToken,
+    });
 
     return {
       accessToken,
