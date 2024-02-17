@@ -90,4 +90,11 @@ export class AuthController {
       throw new UnauthorizedException('Invalid refresh token');
     }
   }
+
+  @Post('logout')
+  @HttpCode(200)
+  async logout(@Req() req: Request, @Res() res: Response): Promise<void> {
+    await this.authService.logout(res);
+    res.send({ message: 'Logout successful' });
+  }
 }
