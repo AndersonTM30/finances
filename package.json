@@ -7,6 +7,8 @@
   "license": "UNLICENSED",
   "scripts": {
     "build": "nest build",
+    "docker:dev":"NODE_ENV=development docker-compose up --build -d",
+    "docker:prod":"NODE_ENV=production docker-compose up --build -d",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "migrate": "npx prisma migrate deploy",
     "start": "nest start",
