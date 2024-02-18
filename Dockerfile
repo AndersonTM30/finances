@@ -14,6 +14,7 @@ COPY prisma ./prisma/
 COPY tsconfig.build.json .
 COPY tsconfig.json .
 COPY .env ./
+ENV TZ=America/Sao_Paulo
 RUN npm install
 
 FROM package as build
@@ -24,14 +25,16 @@ COPY tsconfig.json .
 RUN npm run build
 
 FROM build as dev
-ENV NODE_ENV=development
+ARG NODE_ENV=development
+ENV NODE_ENV=${NODE_ENV}
 
 EXPOSE 3000
 CMD sh -c "npm run migrate && npm run test && npm run start:dev"
 # CMD sh -c "npx prisma migrate deploy && npm run start:dev"
 
 FROM build as prod
-ENV NODE_ENV=production
+ARG NODE_ENV=production
+ENV NODE_ENV=${NODE_ENV}
 
 WORKDIR /app
 COPY --from=build /app/dist ./dist
