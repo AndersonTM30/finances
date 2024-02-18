@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Injectable,
   NotFoundException,
   UnauthorizedException,
@@ -7,6 +8,8 @@ import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from '../prisma_client/prisma.service';
 import { AuthEntity } from './entity/auth.entity';
 import * as bcrypt from 'bcrypt';
+import { Response } from 'express';
+import { Users } from '@prisma/client';
 
 @Injectable()
 export class AuthService {
@@ -15,7 +18,15 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
 
-  async login(username: string, password: string): Promise<AuthEntity> {
+  async login(
+    username: string,
+    password: string,
+    res: Response,
+  ): Promise<AuthEntity> {
+    if (!username || !password) {
+      throw new BadRequestException('Username and password are required');
+    }
+
     const user = await this.prisma.users.findFirst({
       where: {
         username: {
@@ -34,8 +45,52 @@ export class AuthService {
       throw new UnauthorizedException('Invalid password!');
     }
 
+    const accessToken = this.jwtService.sign({ userId: user.id });
+    const refreshToken = this.jwtService.sign(
+      { userId: user.id },
+      { expiresIn: '7d' },
+    );
+
+    res.cookie('access_token', accessToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV !== 'development',
+      sameSite: 'strict',
+      maxAge: 180000,
+    });
+
+    res.cookie('refresh_token', refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV !== 'development',
+      sameSite: 'strict',
+      maxAge: 604800000,
+    });
+
+    res.send({
+      message: 'Login successfully!',
+      accessToken,
+      refreshToken,
+    });
+
     return {
-      accessToken: this.jwtService.sign({ userId: user.id }),
+      accessToken,
+      refreshToken,
     };
+  }
+
+  async validateUser(userId: number): Promise<Users> {
+    const user = await this.prisma.users.findUnique({
+      where: { id: userId },
+    });
+
+    if (!user) {
+      throw new UnauthorizedException('User not found');
+    }
+
+    return user;
+  }
+
+  async logout(res: Response): Promise<void> {
+    res.clearCookie('access_token');
+    res.clearCookie('refresh_token');
   }
 }

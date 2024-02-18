@@ -1,10 +1,10 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { UsersService } from '../../users.service';
-import { UsersModule } from '../../users.module';
-import { PrismaService } from '../../../prisma_client/prisma.service';
-import { CreateUsersDto } from '../../../users/dto/create.users.dto';
+import { UsersService } from '../users.service';
+import { UsersModule } from '../users.module';
+import { PrismaService } from '../../prisma_client/prisma.service';
+import { CreateUsersDto } from '../dto/create.users.dto';
 
-describe('UsersService', () => {
+describe('UsersService (integration)', () => {
   let service: UsersService;
 
   beforeEach(async () => {

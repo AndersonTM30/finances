@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { AuthService } from '../../auth.service';
-import { AuthModule } from '../../../auth/auth.module';
-import { PrismaService } from '../../../prisma_client/prisma.service';
+import { AuthService } from '../auth.service';
+import { AuthModule } from '../auth.module';
+import { PrismaService } from '../../prisma_client/prisma.service';
 import { JwtModule, JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 
@@ -15,8 +15,12 @@ const mockJwtService = {
   sign: jest.fn(),
 };
 
-describe('AuthService', () => {
+describe('AuthService (integration)', () => {
   let authService: AuthService;
+  const mockResponse = {
+    cookie: jest.fn(),
+    send: jest.fn(),
+  };
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -47,9 +51,9 @@ describe('AuthService', () => {
 
   it('should throw NotFoundException if user is not found', async () => {
     mockPrismaService.users.findFirst.mockResolvedValue(null);
-    await expect(authService.login('testes', '12345678')).rejects.toThrowError(
-      'No user found for username: testes',
-    );
+    await expect(
+      authService.login('testes', '12345678', mockResponse as any),
+    ).rejects.toThrow('No user found for username: testes');
   });
 
   it('should throw UnauthorizedException if password is invalid', async () => {
@@ -61,7 +65,7 @@ describe('AuthService', () => {
       .mockImplementation(() => Promise.resolve(false));
 
     await expect(
-      authService.login('Anderson', 'wrongpassword'),
+      authService.login('Anderson', 'wrongpassword', mockResponse as any),
     ).rejects.toThrow('Invalid password!');
   });
 
@@ -72,11 +76,22 @@ describe('AuthService', () => {
       .spyOn(bcrypt, 'compare')
       .mockImplementation(() => Promise.resolve(true));
 
-    const result = await authService.login('Anderson', 'testpassword');
+    await authService.login('Anderson', 'testpassword', mockResponse as any);
 
-    expect(result.accessToken).toBeDefined();
-    expect(result.accessToken).toMatch(
-      /^[A-Za-z0-9-_=]+\.[A-Za-z0-9-_=]+\.?[A-Za-z0-9-_.+/=]*$/,
+    expect(mockResponse.cookie).toHaveBeenCalledWith(
+      'access_token',
+      expect.any(String),
+      expect.any(Object),
     );
+    expect(mockResponse.cookie).toHaveBeenCalledWith(
+      'refresh_token',
+      expect.any(String),
+      expect.any(Object),
+    );
+    expect(mockResponse.send).toHaveBeenCalledWith({
+      message: 'Login successfully!',
+      accessToken: expect.any(String),
+      refreshToken: expect.any(String),
+    });
   });
 });
