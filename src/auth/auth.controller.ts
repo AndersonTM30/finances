@@ -11,11 +11,14 @@ import {
   ValidationPipe,
 } from '@nestjs/common';
 import {
+  ApiBadRequestResponse,
   ApiBody,
+  ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
   ApiResponse,
   ApiTags,
+  ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import { AuthEntity } from './entity/auth.entity';
@@ -32,7 +35,41 @@ export class AuthController {
   ) {}
 
   @Post('login')
+  @ApiOperation({ summary: 'Log in with username and password' })
   @ApiOkResponse({ type: AuthEntity })
+  @ApiBadRequestResponse({
+    status: 400,
+    description: 'Bad Request',
+    schema: {
+      type: 'object',
+      properties: {
+        message: {
+          type: 'string',
+          example: {
+            message:
+              '["username should not be empty", "password must be longer than or equal to 8 characters", ,"password should not be empty"]',
+            error: 'Not Found',
+            statusCode: 400,
+          },
+        },
+      },
+    },
+  })
+  @ApiNotFoundResponse({
+    status: 404,
+    description: 'User not found!',
+    schema: {
+      type: 'object',
+      properties: {
+        message: {
+          type: 'string',
+          example: `No user found for username: username`,
+        },
+        error: { type: 'string', example: 'Not Found' },
+        statusCode: { type: 'number', example: 404 },
+      },
+    },
+  })
   @ApiBody({ type: LoginDto })
   @HttpCode(200)
   @UsePipes(
@@ -57,6 +94,18 @@ export class AuthController {
     status: 200,
     description: 'The access token has been refreshed.',
     type: AuthEntity,
+  })
+  @ApiUnauthorizedResponse({
+    status: 401,
+    description: 'Unauthorized token refresh!',
+    schema: {
+      type: 'object',
+      properties: {
+        message: { type: 'string', example: 'Refresh token not found' },
+        error: { type: 'string', example: 'Unauthorized' },
+        statusCode: { type: 'number', example: 401 },
+      },
+    },
   })
   async refreshToken(@Req() req: Request): Promise<AuthEntity> {
     const refreshToken = req.cookies['refresh_token'];
@@ -92,6 +141,17 @@ export class AuthController {
   }
 
   @Post('logout')
+  @ApiOperation({ summary: 'Log out the user' })
+  @ApiOkResponse({
+    status: 200,
+    description: 'Logou successful',
+    schema: {
+      type: 'object',
+      properties: {
+        message: { type: 'string', example: 'Logout successful' },
+      },
+    },
+  })
   @HttpCode(200)
   async logout(@Req() req: Request, @Res() res: Response): Promise<void> {
     await this.authService.logout(res);
