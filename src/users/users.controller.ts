@@ -23,6 +23,8 @@ import {
   ApiConflictResponse,
   ApiOkResponse,
   ApiBearerAuth,
+  ApiUnauthorizedResponse,
+  ApiNotFoundResponse,
 } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/jwt.auth.guard';
 
@@ -83,9 +85,50 @@ export class UsersController {
 
   @Get(':id')
   @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'Return a new user by id' })
+  @ApiOkResponse({
+    status: 200,
+    description: 'Return user by Id',
+    schema: {
+      type: 'object',
+      properties: {
+        id: { type: 'number', description: 'id user' },
+        username: { type: 'string' },
+      },
+      example: {
+        id: 1,
+        username: 'Anderson29_616_1788',
+      },
+    },
+  })
+  @ApiUnauthorizedResponse({
+    description: 'Unauthorized user',
+    schema: {
+      type: 'object',
+      properties: {
+        message: { type: 'string', example: 'Unauthorized' },
+        statusCode: { type: 'number', example: 401 },
+      },
+    },
+  })
+  @ApiNotFoundResponse({
+    description: 'User not found',
+    schema: {
+      type: 'object',
+      properties: {
+        message: { type: 'string', example: 'User not found' },
+        error: { type: 'string', example: 'Not Found' },
+        statusCode: { type: 'number', example: 404 },
+      },
+    },
+  })
   @ApiBearerAuth()
   @ApiOkResponse()
   async findOne(@Param('id', ParseIntPipe) id: number) {
+    const numericId = parseInt(id.toString(), 10);
+    if (isNaN(numericId) || numericId > 2147483647) {
+      throw new BadRequestException('Invalid user ID');
+    }
     return this.usersService.findOne(id);
   }
 }
