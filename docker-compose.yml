@@ -4,7 +4,7 @@ services:
     build: 
       context: .
       dockerfile: Dockerfile
-      # target: dev
+      target: dev
       args:
         - NODE_ENV=${NODE_ENV}
     container_name: finances_api
