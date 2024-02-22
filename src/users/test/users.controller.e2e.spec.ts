@@ -10,6 +10,11 @@ import { JwtModule } from '@nestjs/jwt';
 
 describe('UsersController (e2e)', () => {
   let app: INestApplication;
+  let createUsersDto: CreateUsersDto;
+
+  const updatePasswordDto = {
+    password: '123456789',
+  };
 
   beforeAll(async () => {
     const module = await Test.createTestingModule({
@@ -26,6 +31,13 @@ describe('UsersController (e2e)', () => {
 
     app = module.createNestApplication();
     await app.init();
+
+    const uuid = randomUUID();
+    const username = 'Anderson' + uuid;
+    createUsersDto = {
+      username: username,
+      password: '12341245',
+    };
   });
 
   afterAll(async () => {
@@ -136,14 +148,67 @@ describe('UsersController (e2e)', () => {
     expect(response.body.message).toContain('Conflict');
   });
 
-  it('/users DELETE - should be delete the user by id', async () => {
-    const uuid = randomUUID();
-    const username = 'Anderson' + uuid;
-    const createUsersDto: CreateUsersDto = {
-      username: username,
-      password: '12341245',
-    };
+  it('/users PATCH - should be update password of the user by id', async () => {
+    const createUser = await request(app.getHttpServer())
+      .post('/users')
+      .send(createUsersDto);
 
+    const userId = createUser.body.id;
+
+    const authResponse = await request(app.getHttpServer())
+      .post('/auth/login')
+      .send({
+        username: createUsersDto.username,
+        password: createUsersDto.password,
+      });
+
+    const token = authResponse.body.accessToken;
+
+    const response = await request(app.getHttpServer())
+      .patch(`/users/${userId}`)
+      .set('Authorization', `Bearer ${token}`)
+      .send(updatePasswordDto);
+
+    expect(response.status).toBe(200);
+    expect(response.body.message).toEqual('User successfully updated!');
+
+    const deleteResponse = await request(app.getHttpServer())
+      .delete(`/users/${userId}`)
+      .set('Authorization', `Bearer ${token}`);
+    expect(deleteResponse.status).toBe(200);
+  });
+
+  it('/users PATCH - should not update user password if the field is empty', async () => {
+    const createUser = await request(app.getHttpServer())
+      .post('/users')
+      .send(createUsersDto);
+
+    const userId = createUser.body.id;
+
+    const authResponse = await request(app.getHttpServer())
+      .post('/auth/login')
+      .send({
+        username: createUsersDto.username,
+        password: createUsersDto.password,
+      });
+
+    const token = authResponse.body.accessToken;
+    const updatePasswordDto = '';
+    const response = await request(app.getHttpServer())
+      .patch(`/users/${userId}`)
+      .set('Authorization', `Bearer ${token}`)
+      .send(updatePasswordDto);
+
+    expect(response.statusCode).toBe(400);
+    expect(response.body.message).toEqual('Bad Request');
+
+    const deleteResponse = await request(app.getHttpServer())
+      .delete(`/users/${userId}`)
+      .set('Authorization', `Bearer ${token}`);
+    expect(deleteResponse.status).toBe(200);
+  });
+
+  it('/users DELETE - should be delete the user by id', async () => {
     const createUser = await request(app.getHttpServer())
       .post('/users')
       .send(createUsersDto);
