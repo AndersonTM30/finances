@@ -11,6 +11,7 @@ import {
   Get,
   UseGuards,
   Delete,
+  Patch,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUsersDto } from './dto/create.users.dto';
@@ -26,8 +27,10 @@ import {
   ApiBearerAuth,
   ApiUnauthorizedResponse,
   ApiNotFoundResponse,
+  ApiBadRequestResponse,
 } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/jwt.auth.guard';
+import { UpdatePasswordDto } from './dto/updatePassword.dto';
 
 @Controller('users')
 @ApiTags('Users')
@@ -131,6 +134,65 @@ export class UsersController {
       throw new BadRequestException('Invalid user ID');
     }
     return this.usersService.findOne(id);
+  }
+
+  @Patch(':id')
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'Update user password by id' })
+  @ApiBearerAuth()
+  @ApiUnauthorizedResponse({
+    description: 'Unauthorized user',
+    schema: {
+      type: 'object',
+      properties: {
+        message: { type: 'string', example: 'Unauthorized' },
+        statusCode: { type: 'number', example: 401 },
+      },
+    },
+  })
+  @ApiNotFoundResponse({
+    description: 'User not found',
+    schema: {
+      type: 'object',
+      properties: {
+        message: { type: 'string', example: 'User not found' },
+        error: { type: 'string', example: 'Not Found' },
+        statusCode: { type: 'number', example: 404 },
+      },
+    },
+  })
+  @ApiBadRequestResponse({
+    description: 'Bad Request',
+    schema: {
+      type: 'object',
+      properties: {
+        message: {
+          type: 'string',
+          example: {
+            message:
+              '["password must be longer than or equal to 8 characters", ,"password should not be empty"]',
+            error: 'Bad Request',
+            statusCode: 400,
+          },
+        },
+      },
+    },
+  })
+  @ApiOkResponse({
+    description: 'User successfully updated!',
+    schema: {
+      type: 'object',
+      example: { message: 'User successfully updated!', statusCode: 200 },
+    },
+  })
+  async updateUserPassword(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() updatePasswordDto: UpdatePasswordDto,
+  ) {
+    await this.usersService.updateOne(id, updatePasswordDto.password);
+    return {
+      message: 'User successfully updated!',
+    };
   }
 
   @Delete(':id')
