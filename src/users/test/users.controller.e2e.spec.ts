@@ -3,13 +3,25 @@ import { UsersModule } from '../users.module';
 import { INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
 import { CreateUsersDto } from '../dto/create.users.dto';
+import { randomUUID } from 'crypto';
+import { AuthModule } from '../../auth/auth.module';
+import { PassportModule } from '@nestjs/passport';
+import { JwtModule } from '@nestjs/jwt';
 
 describe('UsersController (e2e)', () => {
   let app: INestApplication;
 
   beforeAll(async () => {
     const module = await Test.createTestingModule({
-      imports: [UsersModule],
+      imports: [
+        UsersModule,
+        AuthModule,
+        PassportModule.register({ defaultStrategy: 'jwt' }),
+        JwtModule.register({
+          secret: process.env.JWT_SECRET,
+          signOptions: { expiresIn: '60S' },
+        }),
+      ],
     }).compile();
 
     app = module.createNestApplication();
@@ -122,5 +134,34 @@ describe('UsersController (e2e)', () => {
 
     expect(response.status).toBe(409);
     expect(response.body.message).toContain('Conflict');
+  });
+
+  it('/users DELETE - should be delete the user by id', async () => {
+    const uuid = randomUUID();
+    const username = 'Anderson' + uuid;
+    const createUsersDto: CreateUsersDto = {
+      username: username,
+      password: '12341245',
+    };
+
+    const createUser = await request(app.getHttpServer())
+      .post('/users')
+      .send(createUsersDto);
+
+    const userId = createUser.body.id;
+
+    const authResponse = await request(app.getHttpServer())
+      .post('/auth/login')
+      .send({
+        username: createUsersDto.username,
+        password: createUsersDto.password,
+      });
+
+    const token = authResponse.body.accessToken;
+
+    const response = await request(app.getHttpServer())
+      .delete(`/users/${userId}`)
+      .set('Authorization', `Bearer ${token}`);
+    expect(response.status).toBe(200);
   });
 });
