@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   ConflictException,
   Injectable,
   NotFoundException,
@@ -66,6 +67,38 @@ export class UsersService {
     }
 
     return user;
+  }
+
+  async updateOne(userId: number, newPassword: string) {
+    const user = await this.prisma.users.findUnique({
+      where: {
+        id: userId,
+      },
+    });
+
+    if (!user) {
+      throw new NotFoundException('User not found!');
+    }
+
+    if (!newPassword) {
+      throw new BadRequestException();
+    }
+
+    if (newPassword?.length < 8) {
+      throw new Error('The new password must have at least 8 characters');
+    }
+
+    const saltOrRounds = 10;
+    const hashedPassword = await bcrypt.hash(newPassword, saltOrRounds);
+    newPassword = hashedPassword;
+
+    const id = userId;
+    return this.prisma.users.update({
+      where: {
+        id: id,
+      },
+      data: { password: newPassword, updatedAt: new Date() },
+    });
   }
 
   async deleteOne(userId: number) {
