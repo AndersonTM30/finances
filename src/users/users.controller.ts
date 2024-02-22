@@ -46,7 +46,7 @@ export class UsersController {
   })
   @ApiResponse({
     status: 400,
-    description: 'Erro de validação',
+    description: 'Validation error',
     schema: {
       type: 'object',
       properties: {
@@ -62,7 +62,7 @@ export class UsersController {
   })
   @ApiConflictResponse({
     status: 409,
-    description: 'Usuário já cadastrado!',
+    description: 'Already registered user!',
     schema: {
       type: 'object',
       properties: {
@@ -135,8 +135,22 @@ export class UsersController {
 
   @Delete(':id')
   @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'Delete a user by id' })
   @ApiBearerAuth()
-  @ApiOkResponse()
+  @ApiUnauthorizedResponse({
+    description: 'Unauthorized user',
+    schema: {
+      type: 'object',
+      properties: {
+        message: { type: 'string', example: 'Unauthorized' },
+        statusCode: { type: 'number', example: 401 },
+      },
+    },
+  })
+  @ApiOkResponse({
+    status: 200,
+    description: 'User deleted successfully',
+  })
   async deleteOne(@Param('id', ParseIntPipe) id: number) {
     const numericId = parseInt(id.toString(), 10);
     if (isNaN(numericId) || numericId > 2147483647) {
