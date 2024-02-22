@@ -10,6 +10,7 @@ import {
   ParseIntPipe,
   Get,
   UseGuards,
+  Delete,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUsersDto } from './dto/create.users.dto';
@@ -130,5 +131,18 @@ export class UsersController {
       throw new BadRequestException('Invalid user ID');
     }
     return this.usersService.findOne(id);
+  }
+
+  @Delete(':id')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOkResponse()
+  async deleteOne(@Param('id', ParseIntPipe) id: number) {
+    const numericId = parseInt(id.toString(), 10);
+    if (isNaN(numericId) || numericId > 2147483647) {
+      throw new BadRequestException('Invalid user ID');
+    }
+
+    return this.usersService.deleteOne(id);
   }
 }
