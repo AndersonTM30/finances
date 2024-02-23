@@ -22,7 +22,11 @@ describe('CurrenciesService (integration)', () => {
               findUnique: jest
                 .fn()
                 .mockResolvedValue({ id: 1, name: 'Dinheiro' }),
-              update: jest.fn().mockResolvedValue({ id: 1, name: 'Dinheiro' }),
+              update: jest.fn().mockResolvedValue({
+                id: 1,
+                name: 'Dinheiro',
+                updatedAt: new Date('2024-02-23T15:27:09.467Z'),
+              }),
               delete: jest.fn().mockResolvedValue({ id: 1, name: 'Dinheiro' }),
             },
           },
@@ -79,13 +83,17 @@ describe('CurrenciesService (integration)', () => {
   it('should update a currency', async () => {
     const id = 1;
     const updateCurrencyDto = { name: 'USD' };
-    const expectedResult = { id: 1, name: 'Dinheiro' };
+    const expectedResult = {
+      id: 1,
+      name: 'Dinheiro',
+      updatedAt: new Date('2024-02-23T15:27:09.467Z'),
+    };
 
     const result = await service.update(id, updateCurrencyDto);
     expect(result).toEqual(expectedResult);
     expect(prisma.currencies.update).toHaveBeenCalledWith({
       where: { id },
-      data: { name: updateCurrencyDto.name },
+      data: { name: updateCurrencyDto.name, updatedAt: new Date() },
     });
   });
 
