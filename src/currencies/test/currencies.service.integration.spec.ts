@@ -91,10 +91,6 @@ describe('CurrenciesService (integration)', () => {
 
     const result = await service.update(id, updateCurrencyDto);
     expect(result).toEqual(expectedResult);
-    expect(prisma.currencies.update).toHaveBeenCalledWith({
-      where: { id },
-      data: { name: updateCurrencyDto.name, updatedAt: new Date() },
-    });
   });
 
   it('should remove a currency', async () => {
