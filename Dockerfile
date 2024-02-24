@@ -29,8 +29,8 @@ ARG NODE_ENV=development
 ENV NODE_ENV=${NODE_ENV}
 
 EXPOSE 3000
-CMD sh -c "npm run migrate && npm run test && npm run start:dev"
-# CMD sh -c "npx prisma migrate deploy && npm run start:dev"
+# CMD sh -c "npm run migrate && npm run test && npm run start:dev"
+CMD sh -c "npx prisma migrate deploy && npm run start:dev"
 
 FROM build as prod
 ARG NODE_ENV=production
