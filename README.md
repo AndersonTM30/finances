@@ -23,6 +23,11 @@ Personal finance API aimed at applying concepts of an application using the Nest
 ```bash
 npm install
 ```
+- To run the migrations, execute the command:
+``` bash
+npx prisma migrate deploy
+```
+
 - Start the application in development:
 ```
 npm run start:dev
