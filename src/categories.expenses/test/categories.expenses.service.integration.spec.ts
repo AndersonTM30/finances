@@ -53,4 +53,54 @@ describe('CategoriesExpensesService', () => {
       data: createCategoryExpenseDto,
     });
   });
+
+  it('should find all categories of expenses', async () => {
+    const expectedResult = [
+      { id: 1, name: 'Boleto' },
+      { id: 2, name: 'Energia' },
+    ];
+
+    const result = await service.findAll();
+    expect(result).toEqual(expectedResult);
+    expect(prisma.categories_Expenses.findMany).toHaveBeenCalled();
+  });
+
+  it('should find one category of expense by id', async () => {
+    const id = 1;
+    const expectedResult = { id: 1, name: 'Boleto' };
+
+    const result = await service.findOne(id);
+    expect(result).toEqual(expectedResult);
+    expect(prisma.categories_Expenses.findUnique).toHaveBeenCalledWith({
+      where: { id },
+      select: {
+        id: true,
+        name: true,
+      },
+    });
+  });
+
+  it('should update a category of expense by id', async () => {
+    const id = 1;
+    const categoryExpenseDto = { name: 'Boleto' };
+    const expectedResult = {
+      id: 1,
+      name: 'Energia',
+      updatedAt: new Date('2024-02-23T15:27:09.467Z'),
+    };
+
+    const result = await service.update(id, categoryExpenseDto);
+    expect(result).toEqual(expectedResult);
+  });
+
+  it('should remove a category of expense by id', async () => {
+    const id = 1;
+    const expectedResult = { id: id, name: 'Boleto' };
+
+    const result = await service.remove(id);
+    expect(result).toEqual(expectedResult);
+    expect(prisma.categories_Expenses.delete).toHaveBeenCalledWith({
+      where: { id },
+    });
+  });
 });
