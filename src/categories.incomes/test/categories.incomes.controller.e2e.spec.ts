@@ -69,11 +69,19 @@ describe('CategoriesIncomesController (e2e)', () => {
   });
 
   it('/categories/incomes/:id GET - should be return the category of income by id', async () => {
-    const id = 1;
+    const responseCategoryIncome = await request(app.getHttpServer())
+      .post(route)
+      .set('Authorization', `Bearer ${token}`)
+      .send({ name: createCategoryIncomeDto.name });
+
+    const categoryIncomeId = responseCategoryIncome.body.id;
     const response = await request(app.getHttpServer())
-      .get(`${route}/${id}`)
+      .get(`${route}/${categoryIncomeId}`)
       .set('Authorization', `Bearer ${token}`);
 
+    await request(app.getHttpServer())
+      .delete(`${route}/${categoryIncomeId}`)
+      .set('Authorization', `Bearer ${token}`);
     expect(response.statusCode).toBe(200);
   });
 
