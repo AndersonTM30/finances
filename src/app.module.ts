@@ -4,9 +4,16 @@ import { UsersModule } from './users/users.module';
 // import { UsersController } from './users/users.controller';
 import { CurrenciesModule } from './currencies/currencies.module';
 import { CategoriesIncomesModule } from './categories.incomes/categories.incomes.module';
+import { CategoriesExpensesModule } from './categories.expenses/categories.expenses.module';
 
 @Module({
-  imports: [AuthModule, UsersModule, CurrenciesModule, CategoriesIncomesModule],
+  imports: [
+    AuthModule,
+    UsersModule,
+    CurrenciesModule,
+    CategoriesIncomesModule,
+    CategoriesExpensesModule,
+  ],
   // controllers: [UsersController],
 })
 export class AppModule {}
