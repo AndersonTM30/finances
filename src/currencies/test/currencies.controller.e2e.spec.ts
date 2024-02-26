@@ -78,11 +78,19 @@ describe('CurrenciesController (e2e)', () => {
   });
 
   it('/currencies/:id GET - should be return the currency by id', async () => {
-    const id = 1;
+    const responseCurrency = await request(app.getHttpServer())
+      .post('/currencies')
+      .set('Authorization', `Bearer ${token}`)
+      .send({ name: createCurrencyDto.name });
+
+    const currencyId = responseCurrency.body.id;
     const response = await request(app.getHttpServer())
-      .get(`/currencies/${id}`)
+      .get(`/currencies/${currencyId}`)
       .set('Authorization', `Bearer ${token}`);
 
+    await request(app.getHttpServer())
+      .delete(`/currencies/${currencyId}`)
+      .set('Authorization', `Bearer ${token}`);
     expect(response.statusCode).toBe(200);
   });
 
@@ -210,7 +218,7 @@ describe('CurrenciesController (e2e)', () => {
     expect(response.body.message).toEqual('Name is not empty!');
   });
 
-  it('/currencies POST - should return the message that name cannot be empty', async () => {
+  it('/currencies POST - should return the message unauthorized', async () => {
     const response = await request(app.getHttpServer())
       .post('/currencies')
       .set('Authorization', `Bearer ${invalidToken}`)
