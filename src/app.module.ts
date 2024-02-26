@@ -5,6 +5,7 @@ import { UsersModule } from './users/users.module';
 import { CurrenciesModule } from './currencies/currencies.module';
 import { CategoriesIncomesModule } from './categories.incomes/categories.incomes.module';
 import { CategoriesExpensesModule } from './categories.expenses/categories.expenses.module';
+import { IncomesModule } from './incomes/incomes.module';
 
 @Module({
   imports: [
@@ -13,6 +14,7 @@ import { CategoriesExpensesModule } from './categories.expenses/categories.expen
     CurrenciesModule,
     CategoriesIncomesModule,
     CategoriesExpensesModule,
+    IncomesModule,
   ],
   // controllers: [UsersController],
 })
