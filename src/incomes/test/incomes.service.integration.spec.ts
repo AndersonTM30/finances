@@ -25,6 +25,39 @@ describe('IncomesService', () => {
                 date: '2024-02-27T10:08:00.777Z',
                 value: 250.0,
               }),
+              findMany: jest.fn().mockResolvedValue([
+                {
+                  id: 1,
+                  description: 'Pagamento de Boleto',
+                  date: '2024-02-27T10:08:00.777Z',
+                  value: 250.0,
+                },
+                {
+                  id: 2,
+                  description: 'Conta de Luz',
+                  date: '2024-02-27T10:08:00.777Z',
+                  value: 200.0,
+                },
+              ]),
+              findUnique: jest.fn().mockResolvedValue({
+                id: 1,
+                description: 'Pagamento de Boleto',
+                date: '2024-02-27T10:08:00.777Z',
+                value: 250.0,
+              }),
+              udpate: jest.fn().mockResolvedValue({
+                id: 1,
+                description: 'Pagamento de Boleto',
+                date: '2024-02-27T10:08:00.777Z',
+                value: 250.0,
+                updatedAt: new Date('2024-02-27T10:08:00.777Z'),
+              }),
+              delete: jest.fn().mockResolvedValue({
+                id: 1,
+                description: 'Pagamento de Boleto',
+                date: '2024-02-27T10:08:00.777Z',
+                value: 250.0,
+              }),
             },
           },
         },
@@ -64,6 +97,72 @@ describe('IncomesService', () => {
     expect(result).toEqual(expectedResult);
     expect(prisma.incomes.create).toHaveBeenCalledWith({
       data: createIncomeDto,
+    });
+  });
+
+  it('should find all incomes', async () => {
+    const expectedResult = [
+      {
+        id: 1,
+        description: 'Pagamento de Boleto',
+        date: '2024-02-27T10:08:00.777Z',
+        value: 250.0,
+      },
+      {
+        id: 2,
+        description: 'Conta de Luz',
+        date: '2024-02-27T10:08:00.777Z',
+        value: 200.0,
+      },
+    ];
+
+    const result = await service.findAll();
+    expect(result).toEqual(expectedResult);
+    expect(prisma.incomes.findMany).toHaveBeenCalled();
+  });
+
+  it('should be find onde income by id', async () => {
+    const id = 1;
+    const expectedResult = {
+      id: 1,
+      description: 'Pagamento de Boleto',
+      date: '2024-02-27T10:08:00.777Z',
+      value: 250.0,
+    };
+
+    const result = await service.findOne(id);
+    expect(result).toEqual(expectedResult);
+    expect(prisma.incomes.findUnique).toHaveBeenCalledWith({
+      where: { id },
+      select: {
+        id: true,
+        description: true,
+        date: true,
+        value: true,
+      },
+    });
+  });
+
+  it('should be update a income by id', async () => {
+    const id = 1;
+    const incomeDto = {
+      description: 'Pagamento de Boleto',
+      date: '2024-02-27T10:08:00.777Z',
+      value: 250.0,
+    };
+
+    const expectedResult = {
+      id: 1,
+      description: 'Conta de Luz',
+      date: '2024-02-27T10:08:00.777Z',
+      value: 250.0,
+      updatedAt: new Date('2024-02-27T10:08:00.777Z'),
+    };
+
+    const result = await service.update(id, incomeDto);
+    expect(result).toEqual(expectedResult);
+    expect(prisma.incomes.update).toHaveBeenCalledWith({
+      where: { id },
     });
   });
 });
