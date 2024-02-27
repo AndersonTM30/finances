@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateIncomeDto } from './dto/create-income.dto';
 import { UpdateIncomeDto } from './dto/update-income.dto';
 import { PrismaService } from '../prisma_client/prisma.service';
@@ -22,15 +22,62 @@ export class IncomesService {
   }
 
   async findAll() {
-    return `This action returns all incomes`;
+    return this.prisma.incomes.findMany({
+      select: {
+        id: true,
+        description: true,
+        date: true,
+        value: true,
+      },
+      orderBy: {
+        date: 'desc',
+      },
+    });
   }
 
   async findOne(id: number) {
-    return `This action returns a #${id} income`;
+    this.notEmptyField.isValidIncomeId(id);
+    const incomeData = await this.prisma.incomes.findUnique({
+      where: { id: id },
+      select: {
+        id: true,
+        description: true,
+        date: true,
+        value: true,
+      },
+    });
+
+    if (!incomeData) {
+      throw new NotFoundException();
+    }
+    return incomeData;
   }
 
   async update(id: number, updateIncomeDto: UpdateIncomeDto) {
-    return `This action updates a #${id} income`;
+    this.notEmptyField.validationEmptyFiledDescription(
+      updateIncomeDto.description,
+    );
+    this.notEmptyField.validationEmptyFiledCategoryId(
+      updateIncomeDto.categoryId,
+    );
+    this.notEmptyField.validationEmptyFiledUserId(updateIncomeDto.userId);
+    this.notEmptyField.validationEmptyFiledCurrencyId(
+      updateIncomeDto.currencyId,
+    );
+    this.notEmptyField.validationEmptyFiledDate(updateIncomeDto.date);
+    this.notEmptyField.validationEmptyFiledValue(updateIncomeDto.value);
+    const incomeData = await this.prisma.incomes.findUnique({
+      where: { id },
+    });
+
+    if (!incomeData) {
+      throw new NotFoundException('Income not found');
+    }
+    // finalizar essa query
+    return this.prisma.incomes.update({
+      where: { id },
+      data: { description: updateIncomeDto.description },
+    });
   }
 
   async remove(id: number) {
