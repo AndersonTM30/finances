@@ -1,4 +1,4 @@
-﻿import { BadRequestException } from '@nestjs/common';
+﻿import { BadRequestException, NotFoundException } from '@nestjs/common';
 
 export class NotEmptyField {
   validationEmptyFiledDescription(field: string) {
@@ -41,5 +41,13 @@ export class NotEmptyField {
       throw new BadRequestException(`Value is not empty`);
     }
     return field;
+  }
+
+  isValidIncomeId(id: number) {
+    if (!id) {
+      throw new NotFoundException('Income not found!');
+    }
+
+    return id;
   }
 }
