@@ -73,14 +73,24 @@ export class IncomesService {
     if (!incomeData) {
       throw new NotFoundException('Income not found');
     }
-    // finalizar essa query
+
     return this.prisma.incomes.update({
       where: { id },
-      data: { description: updateIncomeDto.description },
+      data: updateIncomeDto,
     });
   }
 
   async remove(id: number) {
-    return `This action removes a #${id} income`;
+    const incomeData = await this.prisma.incomes.findUnique({
+      where: { id },
+    });
+
+    if (!incomeData) {
+      throw new NotFoundException('Income not found');
+    }
+
+    return this.prisma.incomes.delete({
+      where: { id },
+    });
   }
 }
