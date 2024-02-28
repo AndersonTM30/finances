@@ -3,7 +3,7 @@ import { IncomesService } from '../incomes.service';
 import { PrismaService } from '../../prisma_client/prisma.service';
 import { NotEmptyField } from '../validations/not.empty.field';
 
-describe('IncomesService', () => {
+describe('IncomesService (integration)', () => {
   let service: IncomesService;
   let prisma: PrismaService;
 
