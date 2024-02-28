@@ -44,7 +44,7 @@ export class CreateIncomeDto {
 
   @ApiProperty({
     description: 'The value of income',
-    example: '500,00',
+    example: '500.55',
     type: 'number',
   })
   @IsNotEmpty()
