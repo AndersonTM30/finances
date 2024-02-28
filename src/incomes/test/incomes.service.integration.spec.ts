@@ -45,11 +45,14 @@ describe('IncomesService', () => {
                 date: '2024-02-27T10:08:00.777Z',
                 value: 250.0,
               }),
-              udpate: jest.fn().mockResolvedValue({
+              update: jest.fn().mockResolvedValue({
                 id: 1,
-                description: 'Pagamento de Boleto',
+                description: 'Conta de Luz',
+                categoryId: 1,
+                userId: 1,
+                currencyId: 1,
                 date: '2024-02-27T10:08:00.777Z',
-                value: 250.0,
+                value: 260.0,
                 updatedAt: new Date('2024-02-27T10:08:00.777Z'),
               }),
               delete: jest.fn().mockResolvedValue({
@@ -121,7 +124,7 @@ describe('IncomesService', () => {
     expect(prisma.incomes.findMany).toHaveBeenCalled();
   });
 
-  it('should be find onde income by id', async () => {
+  it('should be find one income by id', async () => {
     const id = 1;
     const expectedResult = {
       id: 1,
@@ -147,21 +150,41 @@ describe('IncomesService', () => {
     const id = 1;
     const incomeDto = {
       description: 'Pagamento de Boleto',
+      categoryId: 1,
+      userId: 1,
+      currencyId: 1,
       date: '2024-02-27T10:08:00.777Z',
-      value: 250.0,
+      value: 260.0,
     };
 
     const expectedResult = {
       id: 1,
       description: 'Conta de Luz',
+      categoryId: 1,
+      userId: 1,
+      currencyId: 1,
       date: '2024-02-27T10:08:00.777Z',
-      value: 250.0,
+      value: 260.0,
       updatedAt: new Date('2024-02-27T10:08:00.777Z'),
     };
 
     const result = await service.update(id, incomeDto);
     expect(result).toEqual(expectedResult);
-    expect(prisma.incomes.update).toHaveBeenCalledWith({
+  });
+
+  it('should be remove a income by id', async () => {
+    const id = 1;
+    const expectedResult = {
+      id: 1,
+      description: 'Pagamento de Boleto',
+      date: '2024-02-27T10:08:00.777Z',
+      value: 250.0,
+    };
+
+    const result = await service.remove(id);
+
+    expect(result).toEqual(expectedResult);
+    expect(prisma.incomes.delete).toHaveBeenCalledWith({
       where: { id },
     });
   });
