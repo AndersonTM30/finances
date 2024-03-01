@@ -54,6 +54,16 @@ export class IncomesService {
   }
 
   async update(id: number, updateIncomeDto: UpdateIncomeDto) {
+    this.notEmptyField.isValidIncomeId(id);
+
+    const incomeData = await this.prisma.incomes.findUnique({
+      where: { id },
+    });
+
+    if (!incomeData) {
+      throw new NotFoundException('Income not found');
+    }
+
     this.notEmptyField.validationEmptyFiledDescription(
       updateIncomeDto.description,
     );
@@ -66,13 +76,6 @@ export class IncomesService {
     );
     this.notEmptyField.validationEmptyFiledDate(updateIncomeDto.date);
     this.notEmptyField.validationEmptyFiledValue(updateIncomeDto.value);
-    const incomeData = await this.prisma.incomes.findUnique({
-      where: { id },
-    });
-
-    if (!incomeData) {
-      throw new NotFoundException('Income not found');
-    }
 
     return this.prisma.incomes.update({
       where: { id },
