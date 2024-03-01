@@ -27,14 +27,18 @@ npm install
 ``` bash
 npx prisma migrate deploy
 ```
+- To run the initial data load into the database, run the command:
+```
+npx prisma db seed
+```
 
-- Start the application in development:
-```
-npm run start:dev
-```
 - To run the tests:
 ```
 npm run test
+```
+- Start the application in development:
+```
+npm run start:dev
 ```
 - If you want to run in production:
 ```
