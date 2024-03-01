@@ -219,7 +219,7 @@ describe('CategoriesIncomesController (e2e)', () => {
     expect(response.body.message).toEqual('Name is not empty');
   });
 
-  it('/categories/incomes POST - should return the message that name cannot be empty', async () => {
+  it('/categories/incomes POST - should return the message unauthorized', async () => {
     const response = await request(app.getHttpServer())
       .post(route)
       .set('Authorization', `Bearer ${invalidToken}`)
