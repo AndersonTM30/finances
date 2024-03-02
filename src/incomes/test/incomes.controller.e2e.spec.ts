@@ -1,26 +1,33 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
-import * as request from 'supertest';
-import { CreateCategoriesIncomeDto } from '../dto/create-categories.income.dto';
+import { CreateIncomeDto } from '../dto/create-income.dto';
 import { UsersModule } from '../../users/users.module';
-import { CategoriesIncomesModule } from '../categories.incomes.module';
+import { IncomesModule } from '../incomes.module';
 import { AuthModule } from '../../auth/auth.module';
 import { PassportModule } from '@nestjs/passport';
 import { JwtModule } from '@nestjs/jwt';
+import * as request from 'supertest';
 
-describe('CategoriesIncomesController (e2e)', () => {
+describe('IncomesController (e2e)', () => {
   let app: INestApplication;
   let token: string;
+  let createIncomeDto: CreateIncomeDto;
   const invalidToken = 'slçakjaçljkdahlçkjadçlkhjdfa';
-  let createCategoryIncomeDto: CreateCategoriesIncomeDto;
-  const newCategoryIncomeName = 'Hora Extra';
-  const route = '/categories/incomes';
+  const route = '/incomes';
+  const updateIncomeDto = {
+    description: 'Pagamento de Luz',
+    categoryId: 1,
+    userId: 1,
+    currencyId: 1,
+    date: '2024-02-27T10:08:00.777Z',
+    value: 200.0,
+  };
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       imports: [
         UsersModule,
-        CategoriesIncomesModule,
+        IncomesModule,
         AuthModule,
         PassportModule.register({
           defaultStrategy: 'jwt',
@@ -41,8 +48,13 @@ describe('CategoriesIncomesController (e2e)', () => {
 
     token = loginResponse.body.accessToken;
 
-    createCategoryIncomeDto = {
-      name: 'Salário',
+    createIncomeDto = {
+      description: 'Pagamento de Boleto',
+      categoryId: 1,
+      userId: 1,
+      currencyId: 1,
+      date: '2024-02-27T10:08:00.777Z',
+      value: 260.0,
     };
   });
 
@@ -50,7 +62,7 @@ describe('CategoriesIncomesController (e2e)', () => {
     await app.close();
   });
 
-  it('/categories/incomes GET - should return the list of all categories incomes', async () => {
+  it('/incomes GET - should return the list of all incomes', async () => {
     const response = await request(app.getHttpServer())
       .get(`${route}`)
       .set('Authorization', `Bearer ${token}`);
@@ -59,7 +71,7 @@ describe('CategoriesIncomesController (e2e)', () => {
     expect(Array.isArray(response.body)).toBeTruthy();
   });
 
-  it('/categories/incomes GET - should return the unauthorized message', async () => {
+  it('/incomes GET - should return the unauthorized message', async () => {
     const response = await request(app.getHttpServer())
       .get(`${route}`)
       .set('Authorization', `Bearer ${invalidToken}`);
@@ -68,24 +80,25 @@ describe('CategoriesIncomesController (e2e)', () => {
     expect(response.body.message).toEqual('Unauthorized');
   });
 
-  it('/categories/incomes/:id GET - should be return the category of income by id', async () => {
-    const responseCategoryIncome = await request(app.getHttpServer())
+  it('/incomes/:id GET - should be return income by id', async () => {
+    const responseIncome = await request(app.getHttpServer())
       .post(route)
       .set('Authorization', `Bearer ${token}`)
-      .send({ name: createCategoryIncomeDto.name });
+      .send(createIncomeDto);
 
-    const categoryIncomeId = responseCategoryIncome.body.id;
+    const incomeId = responseIncome.body.id;
+
     const response = await request(app.getHttpServer())
-      .get(`${route}/${categoryIncomeId}`)
+      .get(`${route}/${incomeId}`)
       .set('Authorization', `Bearer ${token}`);
 
     await request(app.getHttpServer())
-      .delete(`${route}/${categoryIncomeId}`)
+      .delete(`${route}/${incomeId}`)
       .set('Authorization', `Bearer ${token}`);
     expect(response.statusCode).toBe(200);
   });
 
-  it('/categories/incomes/:id GET - should return the unauthorized message', async () => {
+  it('/incomes/:id GET - should return the unauthorized message', async () => {
     const id = 1;
     const response = await request(app.getHttpServer())
       .get(`${route}/${id}`)
@@ -95,7 +108,7 @@ describe('CategoriesIncomesController (e2e)', () => {
     expect(response.body.message).toEqual('Unauthorized');
   });
 
-  it('/categories/incomes/:id GET - should return a not found message', async () => {
+  it('/incomes/:id GET - should return a not found message', async () => {
     const id = 45487;
     const response = await request(app.getHttpServer())
       .get(`${route}/${id}`)
@@ -105,99 +118,68 @@ describe('CategoriesIncomesController (e2e)', () => {
     expect(response.body.message).toEqual('Not Found');
   });
 
-  it('/categories/incomes/:id DELETE - should delete the catefory income by id', async () => {
-    const responseCategoryIncome = await request(app.getHttpServer())
+  it('/incomes/:id DELETE - should delete the catefory income by id', async () => {
+    const responseIncome = await request(app.getHttpServer())
       .post(route)
       .set('Authorization', `Bearer ${token}`)
-      .send({ name: createCategoryIncomeDto.name });
+      .send(createIncomeDto);
 
-    const categoryIncomeId = responseCategoryIncome.body.id;
+    const incomeId = responseIncome.body.id;
 
     const response = await request(app.getHttpServer())
-      .delete(`${route}/${categoryIncomeId}`)
+      .delete(`${route}/${incomeId}`)
       .set('Authorization', `Bearer ${token}`);
 
     expect(response.statusCode).toBe(200);
   });
 
-  it('/categories/incomes/:id DELETE - It should show a not found message', async () => {
-    const id = 45487;
-    const response = await request(app.getHttpServer())
-      .delete(`${route}/${id}`)
-      .set('Authorization', `Bearer ${token}`);
-
-    expect(response.statusCode).toBe(404);
-    expect(response.body.message).toEqual('Category of income not found');
-  });
-
-  it('/categories/incomes/:id PATCH - should update the category income name by id', async () => {
-    const responseCategoryIncome = await request(app.getHttpServer())
+  it('/incomes/:id PATCH - should update the income by id', async () => {
+    const responseIncome = await request(app.getHttpServer())
       .post(route)
       .set('Authorization', `Bearer ${token}`)
-      .send({ name: createCategoryIncomeDto.name });
+      .send(createIncomeDto);
 
-    const categoryIncomeId = responseCategoryIncome.body.id;
+    const incomeId = responseIncome.body.id;
 
     const response = await request(app.getHttpServer())
-      .patch(`${route}/${categoryIncomeId}`)
+      .patch(`${route}/${incomeId}`)
       .set('Authorization', `Bearer ${token}`)
-      .send({ name: newCategoryIncomeName });
+      .send(updateIncomeDto);
 
     await request(app.getHttpServer())
-      .delete(`${route}/${categoryIncomeId}`)
+      .delete(`${route}/${incomeId}`)
       .set('Authorization', `Bearer ${token}`);
 
     expect(response.statusCode).toBe(200);
-    expect(response.body.name).toEqual('Hora Extra');
+    expect(response.body.description).toEqual('Pagamento de Luz');
   });
 
-  it('/categories/incomes/:id PATCH - should return the unauthorized message', async () => {
+  it('/incomes/:id PATCH - should return the unauthorized message', async () => {
     const id = 45487;
     const response = await request(app.getHttpServer())
       .patch(`${route}/${id}`)
       .set('Authorization', `Bearer ${invalidToken}`)
-      .send({ name: newCategoryIncomeName });
+      .send(createIncomeDto);
 
     expect(response.statusCode).toBe(401);
     expect(response.body.message).toEqual('Unauthorized');
   });
 
-  it('/categories/incomes/:id PATCH - It should show a not found message', async () => {
+  it('/incomes/:id PATCH - It should show a not found message', async () => {
     const id = 45487;
     const response = await request(app.getHttpServer())
       .patch(`${route}/${id}`)
       .set('Authorization', `Bearer ${token}`);
 
     expect(response.statusCode).toBe(404);
-    expect(response.body.message).toEqual('Category of Income not found');
+    expect(response.body.message).toEqual('Income not found');
   });
 
-  it('/categories/incomes/:id PATCH - should return the message that name cannot be empty', async () => {
-    const responseCategoryIncome = await request(app.getHttpServer())
-      .post(route)
-      .set('Authorization', `Bearer ${token}`)
-      .send({ name: createCategoryIncomeDto.name });
-
-    const categoryIncomeId = responseCategoryIncome.body.id;
-
-    const response = await request(app.getHttpServer())
-      .patch(`${route}/${categoryIncomeId}`)
-      .set('Authorization', `Bearer ${token}`)
-      .send({ name: '' });
-
-    await request(app.getHttpServer())
-      .delete(`${route}/${categoryIncomeId}`)
-      .set('Authorization', `Bearer ${token}`);
-
-    expect(response.statusCode).toBe(400);
-    expect(response.body.message).toEqual('Name is not empty!');
-  });
-
-  it('/categories/incomes POST - should return a new category of income', async () => {
+  it('/incomes POST - should return a new income', async () => {
     const response = await request(app.getHttpServer())
       .post(route)
       .set('Authorization', `Bearer ${token}`)
-      .send({ name: createCategoryIncomeDto.name });
+      .send(createIncomeDto);
 
     const categoryIncomeId = response.body.id;
 
@@ -206,24 +188,32 @@ describe('CategoriesIncomesController (e2e)', () => {
       .set('Authorization', `Bearer ${token}`);
 
     expect(response.statusCode).toBe(201);
-    expect(response.body.name).toEqual('Salário');
+    expect(response.body.description).toEqual('Pagamento de Boleto');
   });
 
-  it('/categories/incomes POST - should return the message that name cannot be empty', async () => {
+  it('/categories/incomes POST - should return the message that date cannot be empty', async () => {
+    const createIncomeFieldEmpty = {
+      description: 'Pagamento de Boleto',
+      categoryId: 1,
+      userId: 1,
+      currencyId: 1,
+      date: '',
+      value: 260.0,
+    };
     const response = await request(app.getHttpServer())
       .post(route)
       .set('Authorization', `Bearer ${token}`)
-      .send({ name: '' });
+      .send(createIncomeFieldEmpty);
 
     expect(response.statusCode).toBe(400);
-    expect(response.body.message).toEqual('Name is not empty');
+    expect(response.body.message).toEqual('Date is not empty');
   });
 
-  it('/categories/incomes POST - should return the message unauthorized', async () => {
+  it('/incomes POST - should return the message unauthorized', async () => {
     const response = await request(app.getHttpServer())
       .post(route)
       .set('Authorization', `Bearer ${invalidToken}`)
-      .send({ name: createCategoryIncomeDto.name });
+      .send(createIncomeDto);
 
     expect(response.statusCode).toBe(401);
     expect(response.body.message).toEqual('Unauthorized');
