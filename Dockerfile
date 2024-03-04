@@ -7,8 +7,8 @@ RUN apt install procps -y
 RUN apt install openssl -y
 RUN npm install -g prisma
 
-COPY package*.json .
-COPY *.lock .
+COPY package.json .
+# COPY *.lock .
 COPY nest-cli.json .
 COPY prisma ./prisma/
 COPY tsconfig.build.json .
@@ -30,7 +30,7 @@ ENV NODE_ENV=${NODE_ENV}
 
 EXPOSE 3000
 # CMD sh -c "npm run migrate && npm run test && npm run start:dev"
-CMD sh -c "npx prisma migrate deploy && npm run start:dev"
+CMD sh -c "npx prisma generate && npx prisma migrate deploy && npm run start:dev"
 
 FROM build as prod
 ARG NODE_ENV=production
