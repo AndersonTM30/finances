@@ -34,11 +34,11 @@ export class IncomesController {
   @ApiOperation({ summary: 'Create a new income' })
   @ApiBody({
     type: CreateIncomeDto,
-    description: 'Income income registration data',
+    description: 'Income registration data',
   })
   @ApiCreatedResponse({
     type: CreateIncomeDto,
-    description: 'Income income registration completed successfully!',
+    description: 'Income registration completed successfully!',
   })
   @ApiUnauthorizedResponse({
     description: 'Unauthorized!',
