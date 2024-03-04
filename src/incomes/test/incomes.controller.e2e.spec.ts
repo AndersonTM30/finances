@@ -191,7 +191,7 @@ describe('IncomesController (e2e)', () => {
     expect(response.body.description).toEqual('Pagamento de Boleto');
   });
 
-  it('/categories/incomes POST - should return the message that date cannot be empty', async () => {
+  it('/incomes POST - should return the message that date cannot be empty', async () => {
     const createIncomeFieldEmpty = {
       description: 'Pagamento de Boleto',
       categoryId: 1,
