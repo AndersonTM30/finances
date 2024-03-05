@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateExpenseDto } from './dto/create-expense.dto';
 import { UpdateExpenseDto } from './dto/update-expense.dto';
 import { PrismaService } from '../prisma_client/prisma.service';
@@ -7,6 +11,9 @@ import { PrismaService } from '../prisma_client/prisma.service';
 export class ExpensesService {
   constructor(private prisma: PrismaService) {}
   async create(data: CreateExpenseDto) {
+    if (!data.date) {
+      throw new BadRequestException('Date is not empty');
+    }
     return this.prisma.expenses.create({ data });
   }
 
