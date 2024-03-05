@@ -8,37 +8,37 @@ import {
   Delete,
   UseGuards,
 } from '@nestjs/common';
-import { IncomesService } from './incomes.service';
-import { CreateIncomeDto } from './dto/create-income.dto';
-import { UpdateIncomeDto } from './dto/update-income.dto';
+import { ExpensesService } from './expenses.service';
+import { CreateExpenseDto } from './dto/create-expense.dto';
+import { UpdateExpenseDto } from './dto/update-expense.dto';
 import {
-  ApiBadRequestResponse,
+  ApiTags,
   ApiBearerAuth,
+  ApiBadRequestResponse,
   ApiBody,
   ApiCreatedResponse,
-  ApiNotFoundResponse,
-  ApiOkResponse,
   ApiOperation,
-  ApiTags,
   ApiUnauthorizedResponse,
+  ApiOkResponse,
+  ApiNotFoundResponse,
 } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/jwt.auth.guard';
 
-@Controller('incomes')
-@ApiTags('Incomes')
+@Controller('expenses')
+@ApiTags('Expenses')
 @UseGuards(JwtAuthGuard)
 @ApiBearerAuth()
-export class IncomesController {
-  constructor(private readonly incomesService: IncomesService) {}
+export class ExpensesController {
+  constructor(private readonly expensesService: ExpensesService) {}
 
-  @ApiOperation({ summary: 'Create a new income' })
+  @ApiOperation({ summary: 'Create a new Expense' })
   @ApiBody({
-    type: CreateIncomeDto,
-    description: 'Income registration data',
+    type: CreateExpenseDto,
+    description: 'Income income registration data',
   })
   @ApiCreatedResponse({
-    type: CreateIncomeDto,
-    description: 'Income registration completed successfully!',
+    type: CreateExpenseDto,
+    description: 'Income income registration completed successfully!',
   })
   @ApiUnauthorizedResponse({
     description: 'Unauthorized!',
@@ -61,13 +61,13 @@ export class IncomesController {
     },
   })
   @Post()
-  async create(@Body() createIncomeDto: CreateIncomeDto) {
-    return this.incomesService.create(createIncomeDto);
+  async create(@Body() createExpenseDto: CreateExpenseDto) {
+    return this.expensesService.create(createExpenseDto);
   }
 
-  @ApiOperation({ summary: 'List all incomes' })
+  @ApiOperation({ summary: 'List all expenses' })
   @ApiOkResponse({
-    description: 'List all incomes',
+    description: 'List all expenses',
     schema: {
       type: 'object',
       properties: {
@@ -82,7 +82,7 @@ export class IncomesController {
       example: [
         {
           id: 1,
-          description: 'Electricity bill payment',
+          description: 'Water park ride',
           categoryId: 1,
           userId: 1,
           currencyId: 1,
@@ -91,12 +91,12 @@ export class IncomesController {
         },
         {
           id: 2,
-          description: 'Bonus',
+          description: 'Metallica concert',
           categoryId: 1,
           userId: 1,
           currencyId: 1,
           date: '2024-02-27T10:08:00.777Z',
-          value: 55.55,
+          value: 155.55,
         },
       ],
     },
@@ -113,17 +113,17 @@ export class IncomesController {
   })
   @Get()
   async findAll() {
-    return this.incomesService.findAll();
+    return this.expensesService.findAll();
   }
 
-  @ApiOperation({ summary: 'Return a income by id' })
+  @ApiOperation({ summary: 'Return a expense by id' })
   @ApiOkResponse({
     status: 200,
-    description: 'Return income by Id',
+    description: 'Return expense by Id',
     schema: {
       type: 'object',
       properties: {
-        id: { type: 'number', description: 'id income' },
+        id: { type: 'number', description: 'id expense' },
         description: { type: 'string' },
         categoryId: { type: 'number' },
         userId: { type: 'number' },
@@ -133,12 +133,12 @@ export class IncomesController {
       },
       example: {
         id: 1,
-        description: 'Electricity bill payment',
+        description: 'Water park ride',
         categoryId: 1,
         userId: 1,
         currencyId: 1,
         date: '2024-02-27T10:08:00.777Z',
-        value: 500.55,
+        value: 200.55,
       },
     },
   })
@@ -153,7 +153,7 @@ export class IncomesController {
     },
   })
   @ApiNotFoundResponse({
-    description: 'Income not found',
+    description: 'Expense not found',
     schema: {
       type: 'object',
       properties: {
@@ -165,12 +165,12 @@ export class IncomesController {
   })
   @Get(':id')
   async findOne(@Param('id') id: string) {
-    return this.incomesService.findOne(+id);
+    return this.expensesService.findOne(+id);
   }
 
-  @ApiOperation({ summary: 'Update Income by id' })
+  @ApiOperation({ summary: 'Update Expense by id' })
   @ApiOkResponse({
-    description: 'Update Income by id',
+    description: 'Update Expense by id',
     schema: {
       properties: {
         description: { type: 'string' },
@@ -182,7 +182,7 @@ export class IncomesController {
       },
       example: {
         id: 1,
-        description: 'Water bill payment',
+        description: 'Water park ride',
         categoryId: 1,
         userId: 1,
         currencyId: 1,
@@ -192,11 +192,11 @@ export class IncomesController {
     },
   })
   @ApiNotFoundResponse({
-    description: 'Income id not found',
+    description: 'Expense id not found',
     schema: {
       type: 'object',
       properties: {
-        message: { type: 'string', example: 'Income id not found' },
+        message: { type: 'string', example: 'Expense id not found' },
         error: { type: 'string', example: 'Not Found' },
         statusCode: { type: 'number', example: 404 },
       },
@@ -215,14 +215,14 @@ export class IncomesController {
   @Patch(':id')
   async update(
     @Param('id') id: string,
-    @Body() updateIncomeDto: UpdateIncomeDto,
+    @Body() updateExpenseDto: UpdateExpenseDto,
   ) {
-    return this.incomesService.update(+id, updateIncomeDto);
+    return this.expensesService.update(+id, updateExpenseDto);
   }
 
-  @ApiOperation({ summary: 'Delete income by id' })
+  @ApiOperation({ summary: 'Delete expense by id' })
   @ApiOkResponse({
-    description: 'Delete income by id',
+    description: 'Delete expense by id',
     status: 200,
     schema: {
       type: 'object',
@@ -247,11 +247,11 @@ export class IncomesController {
     },
   })
   @ApiNotFoundResponse({
-    description: 'Income id not found',
+    description: 'Expense id not found',
     schema: {
       type: 'object',
       properties: {
-        message: { type: 'string', example: 'Income id not found' },
+        message: { type: 'string', example: 'Expense id not found' },
         error: { type: 'string', example: 'Not Found' },
         statusCode: { type: 'number', example: 404 },
       },
@@ -269,6 +269,6 @@ export class IncomesController {
   })
   @Delete(':id')
   async remove(@Param('id') id: string) {
-    return this.incomesService.remove(+id);
+    return this.expensesService.remove(+id);
   }
 }

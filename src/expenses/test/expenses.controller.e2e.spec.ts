@@ -1,20 +1,20 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { INestApplication } from '@nestjs/common';
-import { CreateIncomeDto } from '../dto/create-income.dto';
-import { UsersModule } from '../../users/users.module';
-import { IncomesModule } from '../incomes.module';
-import { AuthModule } from '../../auth/auth.module';
-import { PassportModule } from '@nestjs/passport';
-import { JwtModule } from '@nestjs/jwt';
 import * as request from 'supertest';
+import { CreateExpenseDto } from '../dto/create-expense.dto';
+import { INestApplication } from '@nestjs/common';
+import { JwtModule } from '@nestjs/jwt';
+import { PassportModule } from '@nestjs/passport';
+import { AuthModule } from '../../auth/auth.module';
+import { UsersModule } from '../../users/users.module';
+import { ExpensesModule } from '../expenses.module';
 
-describe('IncomesController (e2e)', () => {
+describe('ExpensesController', () => {
   let app: INestApplication;
   let token: string;
-  let createIncomeDto: CreateIncomeDto;
+  let createExpenseDto: CreateExpenseDto;
   const invalidToken = 'slçakjaçljkdahlçkjadçlkhjdfa';
-  const route = '/incomes';
-  const updateIncomeDto = {
+  const route = '/expenses';
+  const updateExpenseDto = {
     description: 'Pagamento de Luz',
     categoryId: 1,
     userId: 1,
@@ -27,7 +27,7 @@ describe('IncomesController (e2e)', () => {
     const module: TestingModule = await Test.createTestingModule({
       imports: [
         UsersModule,
-        IncomesModule,
+        ExpensesModule,
         AuthModule,
         PassportModule.register({
           defaultStrategy: 'jwt',
@@ -48,7 +48,7 @@ describe('IncomesController (e2e)', () => {
 
     token = loginResponse.body.accessToken;
 
-    createIncomeDto = {
+    createExpenseDto = {
       description: 'Pagamento de Boleto',
       categoryId: 1,
       userId: 1,
@@ -62,7 +62,7 @@ describe('IncomesController (e2e)', () => {
     await app.close();
   });
 
-  it('/incomes GET - should return the list of all incomes', async () => {
+  it('/expenses GET - should return the list of all expenses', async () => {
     const response = await request(app.getHttpServer())
       .get(`${route}`)
       .set('Authorization', `Bearer ${token}`);
@@ -71,7 +71,7 @@ describe('IncomesController (e2e)', () => {
     expect(Array.isArray(response.body)).toBeTruthy();
   });
 
-  it('/incomes GET - should return the unauthorized message', async () => {
+  it('/expenses GET - should return the unauthorized message', async () => {
     const response = await request(app.getHttpServer())
       .get(`${route}`)
       .set('Authorization', `Bearer ${invalidToken}`);
@@ -80,25 +80,25 @@ describe('IncomesController (e2e)', () => {
     expect(response.body.message).toEqual('Unauthorized');
   });
 
-  it('/incomes/:id GET - should be return income by id', async () => {
-    const responseIncome = await request(app.getHttpServer())
+  it('/expenses/:id GET - should be return expense by id', async () => {
+    const responseExpense = await request(app.getHttpServer())
       .post(route)
       .set('Authorization', `Bearer ${token}`)
-      .send(createIncomeDto);
+      .send(createExpenseDto);
 
-    const incomeId = responseIncome.body.id;
+    const expenseId = responseExpense.body.id;
 
     const response = await request(app.getHttpServer())
-      .get(`${route}/${incomeId}`)
+      .get(`${route}/${expenseId}`)
       .set('Authorization', `Bearer ${token}`);
 
     await request(app.getHttpServer())
-      .delete(`${route}/${incomeId}`)
+      .delete(`${route}/${expenseId}`)
       .set('Authorization', `Bearer ${token}`);
     expect(response.statusCode).toBe(200);
   });
 
-  it('/incomes/:id GET - should return the unauthorized message', async () => {
+  it('/expenses/:id GET - should return the unauthorized message', async () => {
     const id = 1;
     const response = await request(app.getHttpServer())
       .get(`${route}/${id}`)
@@ -108,7 +108,7 @@ describe('IncomesController (e2e)', () => {
     expect(response.body.message).toEqual('Unauthorized');
   });
 
-  it('/incomes/:id GET - should return a not found message', async () => {
+  it('/expenses/:id GET - should return a not found message', async () => {
     const id = 45487;
     const response = await request(app.getHttpServer())
       .get(`${route}/${id}`)
@@ -118,81 +118,81 @@ describe('IncomesController (e2e)', () => {
     expect(response.body.message).toEqual('Not Found');
   });
 
-  it('/incomes/:id DELETE - should delete the catefory income by id', async () => {
-    const responseIncome = await request(app.getHttpServer())
+  it('/expenses/:id DELETE - should delete the catefory expense by id', async () => {
+    const responseExpense = await request(app.getHttpServer())
       .post(route)
       .set('Authorization', `Bearer ${token}`)
-      .send(createIncomeDto);
+      .send(createExpenseDto);
 
-    const incomeId = responseIncome.body.id;
+    const expenseId = responseExpense.body.id;
 
     const response = await request(app.getHttpServer())
-      .delete(`${route}/${incomeId}`)
+      .delete(`${route}/${expenseId}`)
       .set('Authorization', `Bearer ${token}`);
 
     expect(response.statusCode).toBe(200);
   });
 
-  it('/incomes/:id PATCH - should update the income by id', async () => {
-    const responseIncome = await request(app.getHttpServer())
+  it('/expenses/:id PATCH - should update the expense by id', async () => {
+    const responseExpense = await request(app.getHttpServer())
       .post(route)
       .set('Authorization', `Bearer ${token}`)
-      .send(createIncomeDto);
+      .send(createExpenseDto);
 
-    const incomeId = responseIncome.body.id;
+    const expenseId = responseExpense.body.id;
 
     const response = await request(app.getHttpServer())
-      .patch(`${route}/${incomeId}`)
+      .patch(`${route}/${expenseId}`)
       .set('Authorization', `Bearer ${token}`)
-      .send(updateIncomeDto);
+      .send(updateExpenseDto);
 
     await request(app.getHttpServer())
-      .delete(`${route}/${incomeId}`)
+      .delete(`${route}/${expenseId}`)
       .set('Authorization', `Bearer ${token}`);
 
     expect(response.statusCode).toBe(200);
     expect(response.body.description).toEqual('Pagamento de Luz');
   });
 
-  it('/incomes/:id PATCH - should return the unauthorized message', async () => {
+  it('/expenses/:id PATCH - should return the unauthorized message', async () => {
     const id = 45487;
     const response = await request(app.getHttpServer())
       .patch(`${route}/${id}`)
       .set('Authorization', `Bearer ${invalidToken}`)
-      .send(createIncomeDto);
+      .send(createExpenseDto);
 
     expect(response.statusCode).toBe(401);
     expect(response.body.message).toEqual('Unauthorized');
   });
 
-  it('/incomes/:id PATCH - It should show a not found message', async () => {
+  it('/expenses/:id PATCH - It should show a not found message', async () => {
     const id = 45487;
     const response = await request(app.getHttpServer())
       .patch(`${route}/${id}`)
       .set('Authorization', `Bearer ${token}`);
 
     expect(response.statusCode).toBe(404);
-    expect(response.body.message).toEqual('Income not found');
+    expect(response.body.message).toEqual('Expense not found');
   });
 
-  it('/incomes POST - should return a new income', async () => {
+  it('/expenses POST - should return a new expense', async () => {
     const response = await request(app.getHttpServer())
       .post(route)
       .set('Authorization', `Bearer ${token}`)
-      .send(createIncomeDto);
+      .send(createExpenseDto);
 
-    const categoryIncomeId = response.body.id;
+    const categoryExpenseId = response.body.id;
 
     await request(app.getHttpServer())
-      .delete(`${route}/${categoryIncomeId}`)
+      .delete(`${route}/${categoryExpenseId}`)
       .set('Authorization', `Bearer ${token}`);
 
     expect(response.statusCode).toBe(201);
     expect(response.body.description).toEqual('Pagamento de Boleto');
   });
 
-  it('/incomes POST - should return the message that date cannot be empty', async () => {
-    const createIncomeFieldEmpty = {
+  it('/expenses POST - should return the message that date cannot be empty', async () => {
+    const createExpenseFieldEmpty = {
       description: 'Pagamento de Boleto',
       categoryId: 1,
       userId: 1,
@@ -203,17 +203,17 @@ describe('IncomesController (e2e)', () => {
     const response = await request(app.getHttpServer())
       .post(route)
       .set('Authorization', `Bearer ${token}`)
-      .send(createIncomeFieldEmpty);
+      .send(createExpenseFieldEmpty);
 
     expect(response.statusCode).toBe(400);
     expect(response.body.message).toEqual('Date is not empty');
   });
 
-  it('/incomes POST - should return the message unauthorized', async () => {
+  it('/expenses POST - should return the message unauthorized', async () => {
     const response = await request(app.getHttpServer())
       .post(route)
       .set('Authorization', `Bearer ${invalidToken}`)
-      .send(createIncomeDto);
+      .send(createExpenseDto);
 
     expect(response.statusCode).toBe(401);
     expect(response.body.message).toEqual('Unauthorized');

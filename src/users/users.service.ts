@@ -5,7 +5,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma_client/prisma.service';
-import * as bcrypt from 'bcrypt';
+import * as bcrypt from 'bcryptjs';
 import { CreateUsersDto } from './dto/create.users.dto';
 import { UserOutputDto } from './dto/user.output.dto';
 

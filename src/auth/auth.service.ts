@@ -7,7 +7,7 @@ import {
 import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from '../prisma_client/prisma.service';
 import { AuthEntity } from './entity/auth.entity';
-import * as bcrypt from 'bcrypt';
+import * as bcrypt from 'bcryptjs';
 import { Response } from 'express';
 import { Users } from '@prisma/client';
 
