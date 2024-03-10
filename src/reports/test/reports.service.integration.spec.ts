@@ -52,7 +52,7 @@ describe('ReportsService', () => {
     const expectedResult = {
       incomes: 250,
       expenses: 200,
-      total: 50,
+      balance: 50,
     };
 
     const result = await service.resume(
