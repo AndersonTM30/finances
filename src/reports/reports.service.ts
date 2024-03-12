@@ -181,6 +181,114 @@ export class ReportsService {
     return result;
   }
 
+  async getExpensesByCurrencyName(
+    startDate: string,
+    endDate: string,
+    currencyName: string,
+    userId: number,
+  ) {
+    const startDateFormated =
+      this.validateFields.convertBrazilianDateToJSDate(startDate);
+    const endDateFormated =
+      this.validateFields.convertBrazilianDateToJSDate(endDate);
+
+    const incomes = await this.prisma.incomes.findMany({
+      where: {
+        userId: userId,
+        date: {
+          gte: startDateFormated,
+          lte: endDateFormated,
+        },
+        currency: {
+          name: {
+            contains: currencyName,
+          },
+        },
+      },
+      select: {
+        id: true,
+        description: true,
+        date: true,
+        category: {
+          select: {
+            name: true,
+          },
+        },
+        currency: {
+          select: {
+            name: true,
+          },
+        },
+        value: true,
+      },
+    });
+
+    const expenses = await this.prisma.expenses.findMany({
+      where: {
+        userId: userId,
+        date: {
+          gte: startDateFormated,
+          lte: endDateFormated,
+        },
+        currency: {
+          name: {
+            contains: currencyName,
+          },
+        },
+      },
+      select: {
+        id: true,
+        description: true,
+        date: true,
+        category: {
+          select: {
+            name: true,
+          },
+        },
+        currency: {
+          select: {
+            name: true,
+          },
+        },
+        value: true,
+      },
+    });
+
+    const resultExpenses = expenses.map(
+      (expense) => (
+        (expense.value = -expense.value),
+        {
+          id: expense.id,
+          description: expense.description,
+          categoryName: expense.category.name,
+          currencyName: expense.currency.name,
+          dataTransaction: this.validateFields.convertJSDateToBrazilianDate(
+            expense.date.toISOString().split('T')[0],
+          ),
+          value: expense.value,
+        }
+      ),
+    );
+
+    const resultIncomes = incomes.map((income) => ({
+      id: income.id,
+      description: income.description,
+      categoryName: income.category.name,
+      currencyName: income.currency.name,
+      dataTransaction: this.validateFields.convertJSDateToBrazilianDate(
+        income.date.toISOString().split('T')[0],
+      ),
+      value: income.value,
+    }));
+
+    return {
+      data: {
+        resultIncomes,
+        resultExpenses,
+      },
+    };
+  }
+
   async getIncomes(userId: number, startDate: string, endDate: string) {
     const startDateFormated =
       this.validateFields.convertBrazilianDateToJSDate(startDate);
