@@ -14,7 +14,7 @@ export class ReportsController {
     return this.reportsService.resume(startDate, endDate, userId);
   }
 
-  @Get('incomes/category')
+  @Get('category/incomes')
   async findByIncomesCategoryName(
     @Query('startDate') startDate: string,
     @Query('endDate') endDate: string,
@@ -29,7 +29,7 @@ export class ReportsController {
     );
   }
 
-  @Get('expenses/category')
+  @Get('category/expenses')
   async findByExpensesCategoryName(
     @Query('startDate') startDate: string,
     @Query('endDate') endDate: string,
@@ -40,6 +40,21 @@ export class ReportsController {
       startDate,
       endDate,
       categoryName,
+      userId,
+    );
+  }
+
+  @Get('category/currency')
+  async findByExpensesCurrencyName(
+    @Query('startDate') startDate: string,
+    @Query('endDate') endDate: string,
+    @Query('currencyName') currencyName: string,
+    @Query('userId', ParseIntPipe) userId: number,
+  ) {
+    return this.reportsService.getExpensesByCurrencyName(
+      startDate,
+      endDate,
+      currencyName,
       userId,
     );
   }
